@@ -1,0 +1,80 @@
+---
+description: "Templates and rules for constitution, PRD, architecture, ADRs, task breakdown; anti-patterns (over-spec, under-spec, vibe coding)."
+alwaysApply: false
+---
+# Specs and Planning
+
+Use when creating or updating product/architecture/task artifacts. Ref: [Spec Kit](https://github.com/github/spec-kit), [GSD](https://github.com/gsd-build/get-shit-done), [intent-driven SDD](https://intent-driven.dev/knowledge/best-practices/).
+
+## Artifact flow
+
+- **Constitution** → PRD/Product → **Architecture** → **Tasks** → Implement. Each step informs the next; do not implement from a vague idea without at least a minimal spec or task list.
+
+## Templates (where to find them)
+
+- **Constitution**: `docs/constitution.md` — principles, constraints, quality bar.
+- **PRD**: `docs/prd.template.md` — problem, users, scope, success criteria, out-of-scope.
+- **Architecture**: `docs/architecture.template.md` — high-level design, boundaries, key tech choices.
+- **ADR**: `docs/adr/0001-template.md` — decision, context, options, consequence.
+- **Tasks**: `planning/tasks.template.md` — ordered list of tasks with verification steps.
+
+Use these paths when creating or updating docs; copy the template structure, then fill in. Do not invent a parallel structure unless the project already uses a different one.
+
+## Constitution (short template)
+
+- **Purpose**: One sentence.
+- **Principles**: 3–7 bullets (e.g. “Tests required for new behavior”, “No secrets in code”).
+- **Out of scope**: What we explicitly do not do (e.g. “No support for legacy browser X”).
+
+Keep it short; it is the anchor for all other docs. Ref: Spec Kit constitution step.
+
+## PRD (minimal template)
+
+- **Problem**: What we are solving.
+- **Users**: Who is affected.
+- **Scope / MVP**: What is in and what is out for this release.
+- **Success criteria**: Testable outcomes (e.g. “User can log in with email in &lt; 2s”).
+- **Acceptance criteria**: Per feature or story—testable, outcome-focused. Ref: [Atlassian acceptance criteria](https://www.atlassian.com/work-management/project-management/acceptance-criteria). **AC template:** | ID | Criterion (outcome) | How to verify | — e.g. AC1: _As [role] I [action] so that [outcome]._ | Test/manual.
+
+Avoid “and then we will also…”; keep MVP bounded. Ref: [SDD best practices](https://intent-driven.dev/knowledge/best-practices/) — minimal but complete.
+
+## Architecture
+
+- **Overview**: One paragraph; main components and data flow.
+- **Boundaries**: Services, modules, or layers; what talks to what.
+- **Key decisions**: Link to ADRs; do not duplicate long text.
+- **Tech stack**: Runtime, framework, DB, infra (brief).
+
+## ADR (format)
+
+- **Title**: Short decision name.
+- **Status**: Proposed | Accepted | Deprecated.
+- **Context**: What forces the decision.
+- **Decision**: What we decided.
+- **Options considered**: At least one alternative and why it was not chosen.
+- **Consequences**: Benefits and drawbacks; migration notes if any.
+
+One ADR per significant decision; number them (e.g. `0001-template.md`). Ref: Common ADR practice (e.g. [adr.github.io](https://adr.github.io/)).
+
+## Task breakdown format
+
+- **Task ID**: Short id (e.g. T1, T2) or ordered list.
+- **Description**: One sentence; what to do.
+- **Verification**: How to confirm (command or manual step). Mandatory.
+- **Dependencies**: Other task IDs that must be done first; optional.
+
+Keep tasks small enough to complete in one session; if a task is too big, split it. Ref: GSD atomic plans; Spec Kit tasks.
+
+## Anti-patterns
+
+- **Over-spec**: Writing long specs no one will read or validate. Prefer minimal, human-reviewable specs. Ref: intent-driven.dev best practices.
+- **Under-spec**: No acceptance criteria or success criteria; “vibe coding.” Require at least testable outcomes for features.
+- **Skipping acceptance criteria**: Implementation drifts from intent. Every feature or story should have at least one testable acceptance criterion.
+- **Spec-implementation drift**: Spec and code diverge. Update the spec when behavior changes, or treat the spec as stale and fix it in the same change.
+- **Monolithic tasks**: One giant task that does many things. Split into ordered, verifiable subtasks.
+
+## When NOT to do this
+
+- Quick fixes: no PRD or ADR; optional one-line task.
+- Throwaway prototypes: minimal or no spec; document “spike” in a short note.
+- Purely technical refactors with no product impact: no PRD; ADR only if architecture changes.

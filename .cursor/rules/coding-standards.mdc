@@ -1,0 +1,40 @@
+---
+description: "Language-agnostic coding standards plus optional TS/Node defaults: formatting, naming, modules, errors, logging, Definition of Done."
+alwaysApply: false
+globs: ["src/**", "lib/**", "app/**", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+---
+# Coding Standards
+
+Apply for implementation and refactors. Keep rules operational: do X, avoid Y, verify with Z. Ref: [Cursor Rules best practices](https://cursor.com/docs/context/rules).
+
+## Language-agnostic
+
+- **Formatting**: Use project formatter (e.g. Prettier, Black, Ruff). Run formatter before commit; do not commit formatting-only changes mixed with logic in the same file if the diff is large—format in a separate commit if needed.
+- **Naming**: Use consistent style per language (e.g. camelCase for JS/TS identifiers, snake_case for Python). Names must be descriptive; avoid single-letter names except trivial loop indices. Types/interfaces: PascalCase; constants: UPPER_SNAKE or camelCase by project.
+- **Module boundaries**: Prefer small, single-responsibility modules. Public API of a module (exports) should be minimal; avoid re-exporting internals. Dependencies flow inward (e.g. domain ← use cases ← adapters).
+- **Error handling**: Use typed errors or standard error types; do not swallow errors without logging or rethrowing. User-facing messages must not expose internals or stack traces. Validate inputs at boundaries.
+- **Logging**: Use a structured logger if available; do not `console.log` in production paths. Log levels: error for failures, warn for recoverable issues, info for notable events, debug for diagnostics. Do not log secrets or PII in plain text.
+
+## TypeScript / Node defaults (optional)
+
+- Use strict TypeScript; no `any` without a short comment justifying.
+- Prefer `interface` for object shapes; use `type` for unions/aliases. Export types that are part of the public API.
+- Prefer `const` and `readonly`; avoid mutable globals. Use `async/await` over raw Promises where possible.
+- Tests: place next to source (`*.test.ts`) or in `test/`/`__tests__/` per project convention. Name tests by behavior: `it('returns 401 when token is missing')`.
+
+## Definition of Done (checklist)
+
+Before marking a task or PR “done”:
+
+- [ ] Code follows project formatting and naming.
+- [ ] New behavior is covered by tests (or explicitly documented as not required, e.g. spike).
+- [ ] No new lint or type errors; `./scripts/verify.sh` (or equivalent) passes.
+- [ ] Errors and logging follow error-handling and logging rules above.
+- [ ] No secrets or credentials in code or logs.
+- [ ] Public APIs (exports, HTTP endpoints) are documented or self-evident from names and types.
+
+## When NOT to apply
+
+- Prototype or spike code that will be discarded.
+- Generated code (only ensure the generator config is under standards).
+- Third-party or vendored code: do not modify style; only wrap or adapt.

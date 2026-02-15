@@ -1,0 +1,45 @@
+---
+description: "Code review rubric (correctness, tests, DX, perf, security), pre-commit and CI suggestions."
+alwaysApply: false
+---
+# Review and Quality
+
+Use when reviewing code (self-review or PR). Ref: [Cursor Rules](https://cursor.com/docs/context/rules), [intent-driven SDD](https://intent-driven.dev/knowledge/best-practices/).
+
+## Code review rubric
+
+Score each dimension; block merge on “No” for correctness or security.
+
+| Dimension | Questions | Pass criteria |
+|-----------|-----------|----------------|
+| **Correctness** | Does it match the spec/task? Are edge cases and errors handled? | Behavior matches acceptance criteria; no obvious bugs. |
+| **Tests** | Are new paths covered? Do existing tests still pass? | New logic has tests; no regressions. |
+| **DX** | Is it readable, navigable, and consistent with the rest of the repo? | Naming and structure align with coding-standards; no unnecessary complexity. |
+| **Perf** | Could this cause N+1, unbounded loops, or huge payloads? | No clear performance regressions for the change scope. |
+| **Security** | Inputs validated? Secrets out of code/logs? Safe file/network access? | No new security issues; secrets not exposed. |
+
+- **Correctness**: If the task or PRD has acceptance criteria, each should be demonstrably met (test or manual step).
+- **Tests**: Prefer automated tests for business logic and APIs; document when something is intentionally not tested (e.g. one-off script).
+- **Security**: No hardcoded secrets; no logging of credentials or PII; validate and sanitize inputs at boundaries.
+
+## Pre-commit (suggested)
+
+Run before every commit:
+
+1. Lint: project linter (e.g. ESLint, Ruff).
+2. Format: formatter (e.g. Prettier, Black).
+3. Tests: full suite or scope to changed files if supported.
+4. Typecheck: if the stack has one (e.g. `tsc --noEmit`).
+
+Suggested tooling (do not install unless asked): pre-commit hooks (e.g. [husky](https://github.com/typicode/husky) + lint-staged), or a single `./scripts/verify.sh` that runs the above. Ref: [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit message format.
+
+## CI (suggested)
+
+- Do not assume a specific CI provider; adapt to GitHub Actions, GitLab CI, Jenkins, etc.
+- Suggested pipeline: checkout → install deps → lint → test → typecheck → build. Optional: security scan (e.g. dependency audit), only on main/release.
+- Branch policy: require passing CI before merge; optional: require at least one approval for non-trivial changes.
+
+## When NOT to apply
+
+- Quick formatting-only or comment-only changes: minimal review; still run verify.
+- Emergency hotfixes: correctness and security are mandatory; other dimensions can be deferred and tracked in a follow-up.

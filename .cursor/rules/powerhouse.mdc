@@ -1,0 +1,91 @@
+---
+description: "Core AI-first workflow: modes (quick fix / feature / refactor / greenfield / brownfield), mandatory steps, verification commands, and security."
+alwaysApply: true
+---
+# Powerhouse Workflow
+
+Single integrated workflow for AI-first engineering. Ref: [Cursor Rules](https://cursor.com/docs/context/rules), [GSD](https://github.com/gsd-build/get-shit-done), [Spec Kit](https://github.com/github/spec-kit), [BMAD](https://github.com/bmad-code-org/BMAD-METHOD).
+
+## Pipeline (artifact handoffs)
+
+1. **Constitution** → principles and constraints (see `docs/constitution.md`).
+2. **Product/PRD** → what we build and why (see `docs/prd.template.md`).
+3. **Architecture** → how it fits together (see `docs/architecture.template.md`, `docs/adr/`).
+4. **Tasks** → atomic, ordered work items (see `planning/tasks.template.md`).
+5. **Implement** → code changes with atomic commits.
+6. **Verify/UAT** → tests, lint, typecheck, build; then human acceptance.
+
+Do not skip upstream artifacts: e.g. do not implement from a vague idea without at least a minimal spec or task list. If in doubt, create a one-paragraph spec first.
+
+## Modes
+
+Pick one per session. Steps and rigor scale by mode.
+
+| Mode | When to use | Spec/PRD | Architecture | Task breakdown | Verification |
+|------|-------------|----------|--------------|----------------|--------------|
+| **Quick fix** | Bug, config tweak, tiny change | No | No | Optional (one task) | Run verify script |
+| **Feature** | New capability, bounded scope | Minimal (acceptance criteria) | Reference existing ADRs | Yes | Verify + UAT checklist |
+| **Refactor** | Restructure without changing behavior | No | ADR if structural | Yes (per area) | Verify; tests must pass |
+| **Greenfield** | New project or major subsystem | Full PRD | Architecture doc + ADRs | Yes | Full verify + UAT |
+| **Brownfield** | Add to or change existing codebase | Align to existing docs | Map first; then ADR for changes | Yes | Verify; regression tests |
+
+- **Quick fix**: Do the change. Run `./scripts/verify.sh` (or equivalent). Commit with conventional message. If verification fails, fix before committing.
+- **Feature / Refactor / Greenfield / Brownfield**: Follow the mandatory checklist for that mode (below). Reference `@specs-and-planning.mdc` for templates.
+
+## Mandatory checklists per mode
+
+### Quick fix
+- [ ] Change is localized (single concern).
+- [ ] Run verification: `./scripts/verify.sh` (or project equivalent).
+- [ ] Commit: type `fix` or `chore`, scope optional. Ref: [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+
+### Feature
+- [ ] Acceptance criteria written (in PRD snippet or task doc); testable.
+- [ ] Tasks listed in `planning/` (or equivalent); each task has a verification step.
+- [ ] Implementation: one logical change per commit; use `feat(scope):` or `fix(scope):`.
+- [ ] Run verification; fix any failure before marking done.
+- [ ] UAT: confirm acceptance criteria with human check or automated test.
+
+### Refactor
+- [ ] ADR created if the refactor changes architecture or boundaries (see `docs/adr/0001-template.md`).
+- [ ] Task list covers refactor areas; order respects dependencies.
+- [ ] Tests exist for affected behavior; run verify; no behavior change except structure.
+
+### Greenfield
+- [ ] Constitution (or principles) in `docs/constitution.md`.
+- [ ] PRD (or minimal product spec) in `docs/`; scope and success criteria clear.
+- [ ] Architecture doc + at least one ADR for key decisions.
+- [ ] Task breakdown in `planning/`; then implement in order; verify each step.
+
+### Brownfield
+- [ ] Map existing code (readme, key modules, entrypoints); note where change touches.
+- [ ] Update or create PRD/spec slice for the new work; align with existing architecture.
+- [ ] ADR for any new architectural decision.
+- [ ] Task breakdown; implement; run verify; regression check.
+
+## Verification commands
+
+- **Default (script)**: Run `./scripts/verify.sh`. It should run (in order): lint → test → typecheck → build. If the project has no stack yet, the script may contain TODO blocks—replace with real commands.
+- **Manual (if no script)**: Run in order: lint → tests → typecheck (if applicable) → build. Do not commit with failing verification unless explicitly documenting a known broken state (e.g. WIP branch).
+- **Per-task**: Each task in `planning/tasks.*` should state how to verify it (e.g. "Run `npm test -- --grep 'auth'`" or "Build and open /settings").
+
+## Regeneration over patching drift
+
+When spec and implementation have drifted: **prefer regenerating from the spec** over endless local patches. (1) Update spec to desired behavior. (2) Regenerate or reimplement the affected slice. (3) Run verify and fix regressions. Ref: [intent-driven SDD](https://intent-driven.dev/knowledge/best-practices/).
+
+## Atomic commit format
+
+- **One logical change per commit.** Ref: [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). Format: `type(scope): short description`. Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`. Breaking: `!` or footer `BREAKING CHANGE:`. Do not mix unrelated edits. Ref: GSD atomic commits.
+
+## Security (mandatory)
+
+- **Secrets**: Never commit secrets, API keys, or credentials. Do not read sensitive paths into prompts unless redacted.
+- **Secret deny patterns** (deny read in Cursor/IDE): `.env`, `.env.*`, `!.env.example`; `**/secrets/*`, `**/*credential*`, `**/*.pem`, `**/*.key`; any path with API keys/tokens. Ref: GSD security.
+- **Denylist**: Prefer denying read access to sensitive paths in your environment over relying on “don’t paste” alone.
+- **Safe file access**: Do not write outside project root; do not overwrite ignored or protected files (e.g. listed in .cursorignore or .gitignore for good reason) without explicit user request.
+
+## When NOT to use this
+
+- Exploratory spikes or throwaway prototypes: use quick fix or a single “spike” task; skip full PRD/architecture.
+- Copy-paste or one-off scripts: no need for PRD or ADR; still run verify if the repo has a verify script.
+- Documentation-only changes: use `docs:` commit type; no task breakdown required unless it’s a large doc set.

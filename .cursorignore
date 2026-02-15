@@ -1,0 +1,28 @@
+# Cursor ignore: prevent AI from reading sensitive or irrelevant files.
+# Ref: powerhouse.mdc security section, GSD security deny patterns.
+
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+secrets/
+**/*credential*
+**/*.pem
+**/*.key
+
+# Build artifacts (large, noisy, not useful in context)
+node_modules/
+dist/
+build/
+out/
+coverage/
+.nyc_output/
+__pycache__/
+*.pyc
+target/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

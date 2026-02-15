@@ -1,0 +1,40 @@
+---
+description: "Session management: how to resume work, hand off context, avoid context loss between AI sessions. Read context-handoff.md at session start."
+alwaysApply: false
+---
+# Context and session management
+
+AI assistants lose all context between sessions. This rule defines how to preserve and restore state. Ref: [GSD STATE.md](https://github.com/gsd-build/get-shit-done).
+
+## Starting a session
+
+1. **Read `docs/context-handoff.md`** first. It tells you: current phase, what's done, what's next, blockers, key decisions.
+2. **Read the active task file** (e.g. `planning/tasks-<feature>.md`) to know which task is in progress.
+3. **Read `docs/constitution.md`** if you haven't this session — it anchors all decisions.
+4. Do NOT re-discover or re-plan what's already documented. Trust the artifacts unless the user says they've changed.
+
+## During a session
+
+- After completing each task, update `docs/context-handoff.md` — at minimum: what was done, what's next, any new decisions or blockers.
+- If you make a key decision (e.g. tech choice, architecture change), log it in context-handoff.md **and** create an ADR if it's significant.
+- If you hit a blocker you can't resolve, add it to the "Blockers" section and tell the user.
+
+## Ending a session
+
+Before the session ends (or when the user says "pause", "stop", or "that's enough for today"):
+
+1. **Update `docs/context-handoff.md`** with: what was done, what's next, blockers, decisions, files changed.
+2. **Commit** the handoff doc (and any other changes) so it persists.
+3. Tell the user: "Context saved in `docs/context-handoff.md`. Next session, start by asking me to read that file."
+
+## Handing off to another person or AI
+
+If someone else will pick up:
+- Ensure `docs/context-handoff.md` is up to date.
+- Note any in-progress work that's not committed (e.g. "T4 is half-done; login route exists but middleware is missing").
+- Note any local-only state (e.g. "I was using a test API key in .env that expires Friday").
+
+## When NOT to use this
+
+- Throwaway / one-shot tasks (quick fix mode): no need to maintain handoff state.
+- If the project uses a different state-tracking mechanism (e.g. GSD STATE.md or a project management tool), follow that instead and skip this rule.
