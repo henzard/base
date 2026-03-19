@@ -1,0 +1,115 @@
+---
+description: Database design patterns and guardrails — enforced on any schema, migration, or data model work
+globs: "**/*.sql,**/*migration*,**/*schema*,**/*model*,**/*entity*,**/prisma/**,**/drizzle/**,**/knex/**,**/typeorm/**,**/sequelize/**"
+alwaysApply: false
+---
+
+# Database design rules
+
+Every schema change, migration, or data model must follow these rules. The AI must refuse to generate schema that violates them and explain why.
+
+<!-- Ref: https://erflow.io/en/blog/database-schema-design-best-practices -->
+<!-- Ref: https://playground.halfaccessible.com/blog/database-design-best-practices -->
+<!-- Ref: https://bytebase.com/blog/top-database-schema-design-best-practices -->
+
+## Naming conventions
+
+- snake_case for all table names, column names, indexes, and constraints.
+- Singular table names: `user`, `order`, `product` — not `users`, `orders`.
+- Foreign keys: `<referenced_table>_id` (e.g. `user_id`, `category_id`).
+- Boolean columns: prefix with `is_`, `has_`, or `can_` (e.g. `is_active`, `has_verified_email`).
+- Timestamps: `created_at`, `updated_at`, `deleted_at` (soft delete).
+- Indexes: `idx_<table>_<columns>` (e.g. `idx_order_user_id`).
+- Constraints: `chk_<table>_<rule>`, `uq_<table>_<columns>`.
+
+## Normalization
+
+- Normalize to Third Normal Form (3NF) by default.
+  - 1NF: Every column stores one atomic value. No arrays, no comma-separated lists in a column.
+  - 2NF: Every non-key column depends on the entire primary key.
+  - 3NF: No column depends on another non-key column.
+- Only denormalize when you have measured a real performance problem AND documented the trade-off in an ADR.
+
+## Primary keys
+
+- Use auto-incrementing `BIGINT` (BIGSERIAL) for internal tables.
+- Use UUIDs (v4 or v7) when IDs are exposed in URLs/APIs or the system is distributed.
+- Never use natural keys (email, phone, SSN) as primary keys — they change.
+- Every table gets a primary key. No exceptions.
+
+## Foreign keys and integrity
+
+- Always define `FOREIGN KEY` constraints in the database — not just in app code.
+- Choose `ON DELETE` behavior explicitly:
+  - `RESTRICT` (safe default — prevents orphans).
+  - `CASCADE` only for true parent-child (e.g. delete order → delete order_items).
+  - `SET NULL` only if the relationship is optional.
+- Every relationship must have a foreign key constraint. If you skip it, explain why in a comment.
+
+## Column defaults
+
+- `NOT NULL` is the default stance. Only allow NULL when absence of a value is meaningful.
+- Add `DEFAULT` values where sensible (e.g. `is_active DEFAULT true`, `created_at DEFAULT NOW()`).
+- Use `DECIMAL` / `NUMERIC` for money — never FLOAT or DOUBLE.
+- Use `TIMESTAMP WITH TIME ZONE` for any time data. Store in UTC.
+- Use the smallest data type that fits: SMALLINT for status codes, BOOLEAN for flags.
+
+## Indexing
+
+- Index every foreign key column.
+- Index columns used in `WHERE`, `JOIN`, `ORDER BY`, and `GROUP BY`.
+- Composite indexes: put the most selective column first.
+- Do not blindly index every column — each index slows writes.
+- If you add an index, add a comment explaining what query it serves.
+- Review: `EXPLAIN ANALYZE` your critical queries before and after.
+
+## Relationships
+
+- One-to-Many: FK on the "many" side. Most common.
+- Many-to-Many: junction/join table with composite PK or surrogate PK + unique constraint on the pair.
+- One-to-One: FK with unique constraint, or merge into one table if both sides always exist.
+
+## Migrations
+
+- Every schema change goes through a migration file — never modify the DB by hand.
+- Migrations must be reversible (include `up` and `down`).
+- One logical change per migration (don't mix "add column" with "change index").
+- Name migrations descriptively: `20260213_add_verified_at_to_user.sql`.
+
+## Soft delete
+
+- Prefer soft delete (`deleted_at TIMESTAMP NULL`) for user-facing data.
+- Add a partial index on `deleted_at IS NULL` to keep queries fast.
+- Hard delete only for ephemeral data (logs, sessions, temp tokens).
+
+## Common anti-patterns — reject these
+
+| Anti-pattern | Why it's bad | Do this instead |
+|---|---|---|
+| Entity-Attribute-Value (EAV) | Kills query performance and integrity | Use JSONB column or proper relational tables |
+| Storing comma-separated values | Violates 1NF, impossible to join/filter | Use a junction table |
+| God table (one table for everything) | Unmanageable, violates SRP | Split by domain entity |
+| No foreign keys ("the app handles it") | Data will become inconsistent | Always use DB-level constraints |
+| `SELECT *` in application code | Fetches unnecessary data, breaks on schema changes | Explicitly list needed columns |
+| N+1 queries via ORM | Fires one query per row instead of a join | Use eager loading / explicit joins |
+| Storing money as FLOAT | Rounding errors lose real money | Use DECIMAL/NUMERIC |
+| Nullable everything | Hides bugs, makes queries unpredictable | Default to NOT NULL |
+
+## Checklist before merging any schema change
+
+- [ ] All tables have a primary key
+- [ ] All relationships have foreign key constraints
+- [ ] ON DELETE behavior is explicitly chosen
+- [ ] Naming follows snake_case conventions above
+- [ ] Migration is reversible (has `down`)
+- [ ] No 1NF violations (no arrays in columns, no CSV strings)
+- [ ] Indexes exist for FKs and frequent query columns
+- [ ] `EXPLAIN ANALYZE` run on critical queries
+- [ ] No FLOAT/DOUBLE for money
+- [ ] Timestamps use timezone-aware types and store UTC
+
+## When NOT to enforce strictly
+
+- Prototyping / spike with throwaway DB (but document that it's throwaway).
+- Third-party schemas you don't control (adapt at the boundary).
+- Time-series or analytics databases that intentionally denormalize for read performance (document in ADR).

@@ -6,7 +6,7 @@ This repo uses a **Cursor ruleset** and **workspace scaffolding** for spec-drive
 
 | Artifact | Location |
 |----------|----------|
-| **Cursor rules** | `.cursor/rules/*.mdc` — workflow, coding standards, review, specs, personas, session management |
+| **Cursor rules** | `.cursor/rules/*.mdc` — workflow, coding standards, review, specs, personas, sessions, DB design, UI/UX, beginner guardrails |
 | **Constitution** | `docs/constitution.md` — principles, constraints, collaboration |
 | **PRD / product** | `docs/prd.template.md` (template); copy per feature |
 | **Architecture** | `docs/architecture.template.md` (template); `docs/adr/` for ADRs |
@@ -15,6 +15,8 @@ This repo uses a **Cursor ruleset** and **workspace scaffolding** for spec-drive
 | **Testing strategy** | `docs/testing-strategy.template.md` — what to test, layers, coverage targets |
 | **API contract** | `docs/api-contract.template.md` — endpoints, payloads, errors before you code |
 | **Spike / research** | `docs/spike.template.md` — timeboxed investigation with findings and recommendation |
+| **Tech stack guide** | `docs/tech-stack-decision-guide.md` — choose frontend, backend, DB, auth, hosting step by step |
+| **Design patterns** | `docs/design-patterns-reference.md` — architecture, code, API, error, and state patterns for beginners |
 | **Backlog** | `planning/backlog.md` — prioritized work |
 | **Task breakdown** | `planning/tasks.template.md` (template); copy per feature |
 | **Retrospective** | `planning/retro.template.md` — what went well, what didn't, action items |
@@ -46,7 +48,7 @@ This repo uses a **Cursor ruleset** and **workspace scaffolding** for spec-drive
 ## Commands
 
 - **Verification**: Run `./scripts/verify.sh`. Replace the TODO blocks with your stack’s lint, test, typecheck, and build commands.
-- **Cursor rules**: `@powerhouse.mdc` (always on), `@specs-and-planning.mdc`, `@coding-standards.mdc`, `@review-and-quality.mdc`, `@personas-and-modes.mdc`, `@context-and-sessions.mdc`. **Personas**: "Use Thought Partner mode", "Conduct strategic review", "Be the Challenger", "Act as Communicator", "Act as Interviewer", or upload a doc and ask for persona simulation.
+- **Cursor rules**: `@powerhouse.mdc` (always on), `@beginner-guardrails.mdc` (always on), `@coding-standards.mdc`, `@database-design.mdc`, `@ui-ux-design.mdc`, `@architecture-and-design.mdc`, `@review-and-quality.mdc`, `@specs-and-planning.mdc`, `@personas-and-modes.mdc`, `@context-and-sessions.mdc`. **Personas**: "Use Thought Partner mode", "Conduct strategic review", "Be the Challenger", "Act as Communicator", "Act as Interviewer", or upload a doc and ask for persona simulation.
 - **New feature**: Run `./scripts/new-feature.sh <name>` (or `.\scripts\new-feature.ps1 <name>`) to scaffold PRD, tasks, and ADR from templates.
 - **Resume a session**: Tell Cursor "Read `docs/context-handoff.md` and resume from where we left off."
 
@@ -71,6 +73,9 @@ This repo uses a **Cursor ruleset** and **workspace scaffolding** for spec-drive
 | `.cursor/rules/architecture-and-design.mdc` | SOLID, clean architecture, DRY/YAGNI/KISS, code smell prevention |
 | `.cursor/rules/personas-and-modes.mdc` | Thought Partner, Strategic Review, Challenger, Communicator, Interviewer, Persona Simulation |
 | `.cursor/rules/context-and-sessions.mdc` | Session management: resume, handoff, context preservation |
+| `.cursor/rules/database-design.mdc` | DB naming, normalization, keys, indexes, migrations, anti-patterns |
+| `.cursor/rules/ui-ux-design.mdc` | Accessibility (WCAG 2.2 AA), responsive layout, visual design, component patterns |
+| `.cursor/rules/beginner-guardrails.mdc` | Proactive mentoring: prevents common mistakes, guides toward good decisions (always apply) |
 | **Docs** | |
 | `docs/constitution.md` | Constitution template (purpose, principles, collaboration) |
 | `docs/prd.template.md` | PRD template (problem, users, scope, AC, risks) |
@@ -81,6 +86,8 @@ This repo uses a **Cursor ruleset** and **workspace scaffolding** for spec-drive
 | `docs/testing-strategy.template.md` | Testing layers, coverage targets, what not to test |
 | `docs/api-contract.template.md` | API endpoints, payloads, errors, conventions |
 | `docs/spike.template.md` | Spike/research: question, findings, recommendation |
+| `docs/tech-stack-decision-guide.md` | Step-by-step tech stack selection (frontend, backend, DB, auth, hosting) |
+| `docs/design-patterns-reference.md` | Architecture, code, API, error handling, and state patterns for beginners |
 | **Planning** | |
 | `planning/backlog.md` | Prioritized work items |
 | `planning/tasks.template.md` | Task breakdown with verification steps |
@@ -99,10 +106,11 @@ This repo uses a **Cursor ruleset** and **workspace scaffolding** for spec-drive
 | `AGENTS.md` | Instructions for AI coding agents |
 | `LICENSE` | MIT license (update copyright holder) |
 
-## First-run guide (5 steps)
+## First-run guide (6 steps)
 
-1. **Open in Cursor** — Rules in `.cursor/rules/` load automatically; `powerhouse.mdc` is always applied.
+1. **Open in Cursor** — Rules in `.cursor/rules/` load automatically; `powerhouse.mdc` and `beginner-guardrails.mdc` are always applied.
 2. **Fill the constitution** — Edit `docs/constitution.md` with your project’s purpose, principles, and out-of-scope.
-3. **Wire up verification** — Edit `scripts/verify.sh` (or `scripts/verify.ps1` on Windows); replace each TODO with your stack’s lint, test, typecheck, and build commands.
-4. **Start a feature** — Copy `docs/prd.template.md` and `planning/tasks.template.md`; add acceptance criteria and tasks with verification steps; implement following the mode checklist in `powerhouse.mdc`.
-5. **Run verify before commit** — Run `./scripts/verify.sh` or `.\scripts\verify.ps1`; fix any failure before committing. Use Conventional Commits: `feat(scope):` or `fix(scope):`.
+3. **Choose your tech stack** — Walk through `docs/tech-stack-decision-guide.md` with the AI (say "Act as Interviewer"). Document choices in `docs/architecture.template.md` and an ADR.
+4. **Wire up verification** — Edit `scripts/verify.sh` (or `scripts/verify.ps1` on Windows); replace each TODO with your stack’s lint, test, typecheck, and build commands.
+5. **Start a feature** — Copy `docs/prd.template.md` and `planning/tasks.template.md`; add acceptance criteria and tasks with verification steps; implement following the mode checklist in `powerhouse.mdc`.
+6. **Run verify before commit** — Run `./scripts/verify.sh` or `.\scripts\verify.ps1`; fix any failure before committing. Use Conventional Commits: `feat(scope):` or `fix(scope):`.

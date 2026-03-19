@@ -1,0 +1,131 @@
+---
+description: UI/UX design patterns and accessibility guardrails — enforced on any frontend, component, or styling work
+globs: "**/*.tsx,**/*.jsx,**/*.vue,**/*.svelte,**/*.html,**/*.css,**/*.scss,**/*.tailwind*"
+alwaysApply: false
+---
+
+# UI/UX design rules
+
+Every component, page, or styling change must follow these rules. The AI must generate accessible, responsive, beautiful UI by default — never cut corners even if the user doesn't explicitly ask.
+
+<!-- Ref: https://building.theatlantic.com/how-to-make-your-ui-accessible-a-practical-checklist-for-2026 -->
+<!-- Ref: https://zeonedge.com/am/blog/web-accessibility-wcag-2026-aria-patterns-inclusive-design -->
+<!-- Ref: https://www.browserstack.com/guide/design-accessibility-checklist-2026 -->
+
+## Core principle
+
+Ship beautiful AND accessible. These are not trade-offs — they are both mandatory.
+
+## Accessibility (WCAG 2.2 Level AA baseline)
+
+### Perceivable
+- Every `<img>` has `alt` text. Decorative images get `alt=""`.
+- Color contrast: 4.5:1 for normal text, 3:1 for large text (18px+ bold or 24px+ regular).
+- UI components: 3:1 contrast against their background.
+- Never convey meaning with color alone — add icons, text, or patterns.
+- Pages must work at 200% browser zoom without horizontal scroll.
+
+### Operable
+- All interactive elements reachable and usable via keyboard alone.
+- Visible focus indicators on every focusable element. Never `outline: none` without a replacement.
+- Focus indicators: minimum 2px, contrasting color.
+- Click/tap targets: minimum 44x44 CSS pixels (48x48 preferred for mobile).
+- Drag-and-drop must have a click/keyboard alternative.
+- No keyboard traps — user can always Tab away.
+
+### Understandable
+- Heading hierarchy: H1 → H2 → H3. Never skip levels.
+- Every form field has a visible `<label>` programmatically linked (`htmlFor` / `id`).
+- Error messages identify the field and describe the problem in text — not just a red border.
+- Consistent navigation: same position and order across pages.
+- `lang` attribute set on `<html>`.
+
+### Robust
+- Use semantic HTML first: `<button>`, `<nav>`, `<main>`, `<article>`, `<header>`, `<footer>`.
+- Custom components: expose `role`, `aria-label`, `aria-expanded`, `aria-live` as needed.
+- Dynamic content updates: use `aria-live="polite"` for status messages, `"assertive"` for errors.
+- Modals: trap focus inside, return focus to trigger on close.
+
+## Visual design defaults
+
+### Layout
+- Mobile-first: design for 320px then scale up.
+- Use a responsive grid system (CSS Grid or Flexbox).
+- Max content width: 65-75 characters per line for readability.
+- Consistent spacing scale (4px base: 4, 8, 12, 16, 24, 32, 48, 64).
+
+### Typography
+- System font stack or one web font max (two weights: regular + bold).
+- Base font size: 16px minimum. Never below 14px for body text.
+- Line height: 1.5 for body, 1.2-1.3 for headings.
+- Limit to 3-4 font sizes per page (use a type scale).
+
+### Color
+- Define a palette: 1 primary, 1 secondary, 1 accent, neutrals (gray scale), semantic (success/warning/error/info).
+- Use CSS custom properties / design tokens — never hardcode hex values inline.
+- Dark mode: if supported, provide proper contrast in both themes.
+- Test with a color blindness simulator before shipping.
+
+### Components
+- Buttons: clear hierarchy — primary (filled), secondary (outlined), tertiary (text/ghost).
+- Forms: labels above inputs, clear placeholder text (not as labels), inline validation.
+- Cards: consistent padding, clear visual boundary, scannable content.
+- Tables: sticky header, zebra stripes or hover highlight for long tables, responsive overflow.
+- Loading: skeleton screens over spinners. Show progress for operations > 2 seconds.
+- Empty states: helpful message + call to action — never a blank page.
+- Toast/notification: auto-dismiss after 5s, closable, accessible with `role="status"`.
+
+### Interaction
+- Hover states on all clickable elements.
+- Transitions: 150-300ms ease. No animation over 500ms unless purposeful.
+- Disable buttons during async operations to prevent double-submit.
+- Optimistic UI for fast-feeling interactions (update UI, then confirm with server).
+
+## Responsive breakpoints (suggested)
+
+| Name | Min width | Typical device |
+|------|-----------|---------------|
+| xs | 0 | Small phone |
+| sm | 640px | Large phone |
+| md | 768px | Tablet |
+| lg | 1024px | Laptop |
+| xl | 1280px | Desktop |
+| 2xl | 1536px | Large monitor |
+
+Test at: 320px, 768px, 1024px, 1440px minimum.
+
+## Common anti-patterns — reject these
+
+| Anti-pattern | Why it's bad | Do this instead |
+|---|---|---|
+| Placeholder-only labels | Disappear on focus, fail accessibility | Use visible `<label>` above input |
+| `div` with `onClick` instead of `<button>` | Not keyboard accessible, no role | Use `<button>` or `<a>` |
+| `outline: none` globally | Removes keyboard focus indicator | Replace with visible custom focus ring |
+| Fixed pixel fonts | Break zoom and responsive scaling | Use rem/em units |
+| Text in images | Can't be read by screen readers, not searchable | Use HTML text with CSS styling |
+| Auto-playing media | Distracting, accessibility violation | Let user initiate playback |
+| Infinite scroll without alternative | Inaccessible, can't reach footer | Add "Load more" or pagination option |
+| Color-only error states | Invisible to color-blind users | Add icon + text alongside color |
+| Tiny tap targets | Frustrating on mobile, accessibility failure | Minimum 44x44px |
+| No loading feedback | User doesn't know if action worked | Skeleton, spinner, or progress bar |
+
+## Checklist before merging any UI change
+
+- [ ] Keyboard-navigable: Tab through the entire flow without a mouse
+- [ ] Focus indicators visible on every interactive element
+- [ ] All images have appropriate alt text
+- [ ] Color contrast passes (use browser DevTools or axe)
+- [ ] Form fields have visible, linked labels
+- [ ] Error messages are descriptive and in text
+- [ ] Responsive: tested at 320px, 768px, 1440px
+- [ ] No layout-breaking horizontal scroll at 200% zoom
+- [ ] Semantic HTML used (no div soup)
+- [ ] Loading and empty states handled
+- [ ] Transitions are smooth (150-300ms)
+- [ ] Design tokens / CSS variables used — no hardcoded colors
+
+## When NOT to enforce strictly
+
+- Internal admin tools: accessibility still matters but pixel-perfect polish can be lighter.
+- Prototype / spike: skip polish but keep semantic HTML and keyboard access.
+- Email templates: limited CSS support — do the best you can within constraints.

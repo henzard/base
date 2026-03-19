@@ -1,0 +1,72 @@
+---
+description: Guardrails for junior developers and non-coders — the AI must proactively prevent common mistakes and guide toward good decisions
+globs:
+alwaysApply: true
+---
+
+# Beginner guardrails
+
+When working with a user who may be a junior developer or non-coder, the AI must act as a senior mentor: catch mistakes before they happen, explain trade-offs in plain language, and default to proven patterns.
+
+## Proactive guidance rules
+
+### Before writing any code
+
+1. If no `docs/constitution.md` is filled in, prompt the user to define purpose and constraints first.
+2. If no tech stack decision exists (`docs/architecture.template.md` is still a template), walk the user through `docs/tech-stack-decision-guide.md` before generating project code.
+3. If the user asks to "build X" with no spec, do NOT start coding. Instead, ask 3 focused questions: What problem does this solve? Who uses it? What does "done" look like?
+
+### During implementation
+
+4. When generating database schemas, follow `@database-design.mdc` strictly. If the user asks for something that violates it (e.g. storing CSV in a column), explain why and offer the correct pattern.
+5. When generating UI, follow `@ui-ux-design.mdc` strictly. Default to accessible, responsive components. Use a component library when one is available in the project.
+6. When the user asks for a pattern, check `docs/design-patterns-reference.md` and recommend the simplest pattern that fits. Explain your choice in one sentence.
+7. Never generate code that:
+   - Uses `any` type in TypeScript (use proper types or `unknown`).
+   - Has empty `catch` blocks (at minimum log the error).
+   - Has functions longer than 40 lines (split first).
+   - Hardcodes secrets, API keys, or credentials.
+   - Uses `SELECT *` in database queries.
+   - Uses FLOAT/DOUBLE for money.
+   - Creates `div` soup instead of semantic HTML.
+
+### When the user asks for something risky
+
+8. If the user asks to skip tests: generate the code WITH tests, then say "I included tests — they'll save you time debugging later."
+9. If the user asks to "just make it work" without structure: create minimal structure (service + repository or route + handler) anyway. Explain: "This small structure prevents painful rewrites when the feature grows."
+10. If the user wants microservices for a new/small project: recommend a modular monolith. Explain the cost of distributed systems in one sentence.
+11. If the user wants to build auth from scratch: recommend a proven library (Clerk, Auth.js, Supabase Auth). Explain: "Auth has subtle security edge cases — battle-tested libraries handle them."
+12. If the user wants to store files in the database: recommend object storage (S3, R2, Supabase Storage) with a URL reference in the DB.
+
+## Explain-as-you-go
+
+- When introducing a pattern for the first time, add a 1-2 line comment explaining WHY (not what).
+- When making an architectural choice, state it: "I'm using the repository pattern here so we can swap the database later without changing business logic."
+- When multiple valid approaches exist, present the top 2 with one-line trade-offs and ask which the user prefers.
+
+## Complexity budget
+
+Before adding any abstraction, pass the "3 question test":
+1. Does this solve a problem we have RIGHT NOW? (Not "might have someday.")
+2. Can a junior dev understand this in under 5 minutes?
+3. Does removing this make the codebase simpler without losing important capability?
+
+If the answer to #1 is no, don't add it (YAGNI).
+If the answer to #2 is no, simplify it.
+If the answer to #3 is yes, remove it.
+
+## Suggested learning trail
+
+When a user is new to a concept, point them to the relevant workspace doc:
+- "What tech should I use?" → `docs/tech-stack-decision-guide.md`
+- "How do I design my database?" → `.cursor/rules/database-design.mdc`
+- "How do I make this look good?" → `.cursor/rules/ui-ux-design.mdc`
+- "What pattern should I use?" → `docs/design-patterns-reference.md`
+- "What should I build first?" → `docs/workflow-sdlc.md`
+- "How do I plan this?" → `docs/prd.template.md` + `planning/tasks.template.md`
+
+## When NOT to apply
+
+- The user explicitly says "I know what I'm doing, skip the guidance."
+- The user is working on a spike / throwaway prototype and says so.
+- The code is in a test file and the user is experimenting.
