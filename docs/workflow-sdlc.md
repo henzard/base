@@ -385,7 +385,7 @@ List issues found and propose fixes. Do not start coding until issues are resolv
 1. **New project or big feature:** Start at Step 1. Paste the prompt, answer the AI's questions, then proceed to Step 2. By Step 8 you have a reviewed PRD and task list. Say "Implement the tasks in `planning/tasks-<name>.md` in order."
 2. **Medium feature:** Steps 1, 3, 5, 7 (pain, scope+tech, acceptance criteria, tasks). Skip users deep-dive and risk analysis if scope is small and well-understood.
 3. **Small fix:** Step 1 (one sentence pain + outcome) → Step 5 (AC for the fix) → "Break into 1–3 tasks and implement."
-4. **AI/Human rules:** Copy the "Who does what" and "When the human must be in the loop" into `docs/constitution.md` or `docs/collaboration.md`.
+4. **AI/Human rules:** Copy the "Who does what" and "When the human must be in the loop" into the **Collaboration** section of `docs/constitution.md`.
 
 > **Anti-pattern:** Do not paste a vague idea and say "build it." That's vibe coding. Even 5 minutes of answering Step 1 and Step 5 will save hours of rework. Ref: [SDD anti-patterns](https://intent-driven.dev/knowledge/best-practices/).
 

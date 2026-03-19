@@ -18,8 +18,8 @@ _Describe the high-level design and data flow._
 ## Key decisions
 
 <!-- Link to ADRs; do not duplicate long text. -->
-- _e.g. Auth: see [ADR 0002](adr/0002-auth-strategy.md)._
-- _e.g. Data store: see [ADR 0001](adr/0001-template.md)._
+- _e.g. Auth: see ADR 0002 (create with `./scripts/new-feature.sh` or copy `docs/adr/0001-template.md`)._
+- _e.g. Data store: see ADR 0001._
 
 ## Tech stack
 

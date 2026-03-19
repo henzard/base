@@ -24,6 +24,9 @@ This repo uses a **Cursor ruleset** and **workspace scaffolding** for spec-drive
 | **New-feature script** | `scripts/new-feature.sh` / `scripts/new-feature.ps1` — scaffold PRD + tasks + ADR from templates |
 | **Env example** | `.env.example` — env var template (never commit `.env`) |
 | **Cursor ignore** | `.cursorignore` — prevent AI from reading secrets and build artifacts |
+| **Contributing** | `CONTRIBUTING.md` — how to use this workspace, branching, PR, session handoff |
+| **Agent instructions** | `AGENTS.md` — instructions for AI agents (Cursor, Copilot, Claude Code) |
+| **License** | `LICENSE` — MIT (update copyright holder) |
 
 ## 3-mode usage guide
 
@@ -65,6 +68,7 @@ This repo uses a **Cursor ruleset** and **workspace scaffolding** for spec-drive
 | `.cursor/rules/coding-standards.mdc` | Formatting, naming, modules, errors, logging, Definition of Done |
 | `.cursor/rules/review-and-quality.mdc` | Code review rubric, pre-commit/CI suggestions |
 | `.cursor/rules/specs-and-planning.mdc` | Constitution, PRD, ADR, task templates, AC template; anti-patterns |
+| `.cursor/rules/architecture-and-design.mdc` | SOLID, clean architecture, DRY/YAGNI/KISS, code smell prevention |
 | `.cursor/rules/personas-and-modes.mdc` | Thought Partner, Strategic Review, Challenger, Communicator, Interviewer, Persona Simulation |
 | `.cursor/rules/context-and-sessions.mdc` | Session management: resume, handoff, context preservation |
 | **Docs** | |
@@ -91,6 +95,9 @@ This repo uses a **Cursor ruleset** and **workspace scaffolding** for spec-drive
 | `.env.example` | Env var template (shows expected vars without real values) |
 | `CHANGELOG.md` | Release tracking (Keep a Changelog format) |
 | `.github/PULL_REQUEST_TEMPLATE.md` | PR checklist tied to review rubric |
+| `CONTRIBUTING.md` | How to contribute, branching, PRs, session handoff |
+| `AGENTS.md` | Instructions for AI coding agents |
+| `LICENSE` | MIT license (update copyright holder) |
 
 ## First-run guide (5 steps)
 

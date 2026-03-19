@@ -1,0 +1,90 @@
+---
+description: "SOLID principles, clean architecture, DRY/YAGNI/KISS, and code smell prevention. Apply when designing, implementing, or reviewing structure."
+alwaysApply: false
+globs: ["src/**", "lib/**", "app/**", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py", "**/*.go", "**/*.rs"]
+---
+# Architecture and Design
+
+Structural quality rules. Apply when designing modules, writing classes, or reviewing pull requests. Complements `@coding-standards.mdc` (style) and `@review-and-quality.mdc` (rubric).
+
+## SOLID principles
+
+### S - Single Responsibility
+- Every class, module, and function has **one reason to change**.
+- If you need "and" to describe what something does, split it.
+
+### O - Open/Closed
+- Open for extension, closed for modification.
+- Use interfaces, strategy pattern, or plugins rather than editing existing code.
+
+### L - Liskov Substitution
+- Subclasses must be usable wherever the parent is used without breaking behavior.
+- If a subclass overrides to do nothing or throw, use composition instead.
+
+### I - Interface Segregation
+- Do not force classes to implement interfaces they don't need.
+- Prefer many small, focused interfaces over one large "god" interface.
+
+### D - Dependency Inversion
+- Depend on abstractions (interfaces), not concrete implementations.
+- Inject dependencies; do not instantiate them deep inside business logic.
+
+## Clean architecture
+
+- Business/domain logic must **not depend on** frameworks, databases, or UI.
+- Keep the core domain free of infrastructure concerns (HTTP, SQL, file I/O).
+- Use dependency injection to wire layers together.
+- Separate data models by layer: request/response DTOs != domain entities != DB schemas.
+- **Dependency Rule**: source code dependencies point **inward only** (infra -> app -> domain).
+
+## DRY / YAGNI / KISS
+
+- **DRY**: Don't repeat logic. Extract and reuse. But don't over-abstract similar-looking code that serves different purposes.
+- **YAGNI**: Don't build for hypothetical future requirements. Build what's needed now.
+- **KISS**: Prefer the simplest solution that meets the requirement.
+
+## Code smells to prevent
+
+Never introduce these. When refactoring, actively remove them.
+
+### Bloaters (too big)
+- **Long method**: Keep under ~30 lines; extract helpers.
+- **Large class**: Split into smaller, focused classes (SRP).
+- **Primitive obsession**: Don't use raw `string`/`int` for domain concepts; use value objects (`Email`, `Money`, `UserId`).
+- **Long parameter list**: > 3 params = use a parameter object.
+- **Data clumps**: Groups of data that always appear together become a class/struct.
+
+### Coupling problems
+- **Feature envy**: Method uses more data from another class than its own. Move it.
+- **Inappropriate intimacy**: Classes accessing each other's internals. Use interfaces.
+- **Message chains**: `a.getB().getC().getD()` violates Law of Demeter. Use delegation.
+- **Middle man**: Class that only delegates. Remove or inline unless it adds value.
+
+### Change preventers
+- **Divergent change**: One class changed for many reasons. Split by reason.
+- **Shotgun surgery**: One change = edits across many classes. Consolidate.
+
+### Dispensables (remove these)
+- **Duplicate code**: Extract shared logic into a reusable function/module.
+- **Dead code**: Delete unreachable code, unused variables, unused imports, unused functions.
+- **Lazy class**: Too little to justify existence. Inline it.
+- **Speculative generality**: No abstractions "just in case." YAGNI.
+
+### OOP abusers
+- **Switch on type**: Use polymorphism instead of `switch`/`if-else` on object type.
+- **Refused bequest**: Subclass ignores most inherited methods. Use composition.
+- **Temporary field**: Fields only set in certain scenarios. Extract into a separate class.
+
+## How to verify
+
+- During review, check each changed class/module against the SOLID checklist.
+- Look for new smells in the diff (especially long methods, primitive obsession, feature envy).
+- Run `./scripts/verify.sh`; lint rules catch some smells (e.g. complexity, unused code).
+- If a refactor is needed, create a separate task/commit for it (don't mix with feature work).
+
+## When NOT to apply
+
+- Throwaway prototypes or spikes: pragmatism over purity; document the tech debt.
+- Scripting or glue code: simple scripts don't need DI or layered architecture.
+- Performance-critical hot paths: sometimes inlining or coupling is justified. Document with an ADR or comment explaining why.
+- Third-party code: don't refactor vendored libraries; wrap or adapt instead.

@@ -1,37 +1,97 @@
 ---
-description: "Language-agnostic coding standards plus optional TS/Node defaults: formatting, naming, modules, errors, logging, Definition of Done."
+description: "Coding standards: formatting, naming, functions, modules, errors, logging, comments, dependencies, testing, Definition of Done."
 alwaysApply: false
-globs: ["src/**", "lib/**", "app/**", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+globs: ["src/**", "lib/**", "app/**", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py", "**/*.go", "**/*.rs"]
 ---
 # Coding Standards
 
-Apply for implementation and refactors. Keep rules operational: do X, avoid Y, verify with Z. Ref: [Cursor Rules best practices](https://cursor.com/docs/context/rules).
+Apply for implementation and refactors. Do X, avoid Y, verify with Z. Ref: [Cursor Rules](https://cursor.com/docs/context/rules). Complements `@architecture-and-design.mdc` (SOLID, clean arch, code smells).
 
-## Language-agnostic
+## Core principle
 
-- **Formatting**: Use project formatter (e.g. Prettier, Black, Ruff). Run formatter before commit; do not commit formatting-only changes mixed with logic in the same file if the diff is large—format in a separate commit if needed.
-- **Naming**: Use consistent style per language (e.g. camelCase for JS/TS identifiers, snake_case for Python). Names must be descriptive; avoid single-letter names except trivial loop indices. Types/interfaces: PascalCase; constants: UPPER_SNAKE or camelCase by project.
-- **Module boundaries**: Prefer small, single-responsibility modules. Public API of a module (exports) should be minimal; avoid re-exporting internals. Dependencies flow inward (e.g. domain ← use cases ← adapters).
-- **Error handling**: Use typed errors or standard error types; do not swallow errors without logging or rethrowing. User-facing messages must not expose internals or stack traces. Validate inputs at boundaries.
-- **Logging**: Use a structured logger if available; do not `console.log` in production paths. Log levels: error for failures, warn for recoverable issues, info for notable events, debug for diagnostics. Do not log secrets or PII in plain text.
+Write code that is **readable before it is clever**. Prefer explicit over implicit.
+
+## Formatting
+
+- Use project formatter (e.g. Prettier, Black, Ruff). Run formatter before commit.
+- Do not mix formatting-only changes with logic changes in one commit if the diff is large.
+
+## Naming
+
+- Consistent style per language (camelCase JS/TS, snake_case Python, etc.).
+- Names must be **descriptive and intention-revealing**. No single-letter names except trivial loop indices.
+- Types/interfaces: PascalCase. Constants: UPPER_SNAKE or camelCase by project.
+- **Booleans** read as yes/no: `isLoading`, `hasPermission`, `canSubmit`.
+- **Functions** are verbs: `fetchUser`, `validateInput`, `parseConfig`.
+- Avoid abbreviations unless universally understood (`url`, `id`, `db`).
+
+## Functions and methods
+
+- Each function does **one thing** (Single Responsibility).
+- Keep functions **under 30 lines**; extract if longer.
+- **Prefer pure functions** with no side effects where possible.
+- Limit parameters to **3 or fewer**; use an options/config object for more.
+- Do not use output parameters; return values instead.
+- Avoid flag arguments (`doSomething(true)`); split into two named functions.
+
+## Module boundaries
+
+- Prefer small, single-responsibility modules. Minimal public API (exports).
+- Dependencies flow inward (domain < use cases < adapters). See `@architecture-and-design.mdc`.
+- If you need "and" to describe a module, split it.
+
+## Error handling
+
+- **Never silently swallow errors** (no empty catch blocks).
+- Log errors **with context** (what was attempted, relevant IDs).
+- Use typed/named errors, not raw strings.
+- Handle errors at the boundary closest to the user or caller.
+- User-facing messages must not expose internals or stack traces. Validate inputs at boundaries.
+
+## Logging
+
+- Use a structured logger; no `console.log` in production paths.
+- Levels: error (failures), warn (recoverable), info (notable events), debug (diagnostics).
+- Never log secrets or PII in plain text.
+
+## Comments
+
+- Comments explain **why**, not **what**. The code explains itself.
+- Do not add comments that restate the code.
+- **Delete commented-out code** before committing. Delete dead code.
+- TODO/FIXME: use sparingly; track in issues or backlog, not indefinitely in code.
+
+## Dependencies and imports
+
+- Keep imports organized; remove unused imports.
+- Prefer well-maintained libraries over custom reimplementations.
+- **Pin dependency versions** in production code.
+
+## Testing
+
+- Write tests for all non-trivial logic. Test **behavior**, not implementation details.
+- Tests must be independent and deterministic (no shared mutable state between tests).
+- Aim for meaningful coverage, not 100% line coverage.
+- Name tests by behavior: `it('returns 401 when token is missing')`.
+- Place tests next to source (`*.test.ts`) or in `test/`/`__tests__/` per project convention.
 
 ## TypeScript / Node defaults (optional)
 
 - Use strict TypeScript; no `any` without a short comment justifying.
-- Prefer `interface` for object shapes; use `type` for unions/aliases. Export types that are part of the public API.
-- Prefer `const` and `readonly`; avoid mutable globals. Use `async/await` over raw Promises where possible.
-- Tests: place next to source (`*.test.ts`) or in `test/`/`__tests__/` per project convention. Name tests by behavior: `it('returns 401 when token is missing')`.
+- Prefer `interface` for object shapes; `type` for unions/aliases. Export types that are public API.
+- Prefer `const` and `readonly`; avoid mutable globals. `async/await` over raw Promises.
 
 ## Definition of Done (checklist)
 
-Before marking a task or PR “done”:
+Before marking a task or PR "done":
 
-- [ ] Code follows project formatting and naming.
-- [ ] New behavior is covered by tests (or explicitly documented as not required, e.g. spike).
-- [ ] No new lint or type errors; `./scripts/verify.sh` (or equivalent) passes.
-- [ ] Errors and logging follow error-handling and logging rules above.
+- [ ] Code follows formatting, naming, and function rules above.
+- [ ] New behavior has tests (or explicitly excepted, e.g. spike).
+- [ ] No new lint or type errors; `./scripts/verify.sh` passes.
+- [ ] Errors and logging follow rules above.
 - [ ] No secrets or credentials in code or logs.
-- [ ] Public APIs (exports, HTTP endpoints) are documented or self-evident from names and types.
+- [ ] No code smells introduced (see `@architecture-and-design.mdc`).
+- [ ] Public APIs documented or self-evident from names and types.
 
 ## When NOT to apply
 
