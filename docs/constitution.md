@@ -16,6 +16,18 @@ _Define the core purpose of this project._
 - _e.g. Prefer small, reviewable changes; one logical change per commit._
 - _e.g. Specifications and code stay in sync; update the spec when behavior changes._
 
+## Default tech stack
+
+Unless overridden for a specific project, this workspace defaults to:
+
+- **Frontend**: React + TypeScript + Tailwind CSS + shadcn/ui
+- **Backend**: Express.js + TypeScript
+- **Database (local)**: SQLite (better-sqlite3 or Drizzle ORM)
+- **Database (distributed/production)**: Supabase (PostgreSQL) — sync from SQLite when multi-user or cloud persistence is needed
+- **Auth**: Supabase Auth
+
+Override by filling in `docs/architecture.template.md` and creating an ADR explaining the alternative choice.
+
 ## Out of scope
 
 <!-- What we explicitly do not do (e.g. legacy browser support, certain integrations). -->

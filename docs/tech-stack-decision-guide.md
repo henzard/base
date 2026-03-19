@@ -4,6 +4,10 @@ Use this guide **before** writing any code. Answer the questions below with your
 
 > **Rule of thumb:** Pick boring technology you (or your AI) know well. Trendy stacks cost 2-3x more in debugging time when things go wrong.
 
+> **This workspace's preferred default stack** (used when you have no preference):
+> React + TypeScript (frontend), Express.js + TypeScript (backend), SQLite (local dev), Supabase/PostgreSQL (production/distributed), Supabase Auth, Tailwind CSS + shadcn/ui.
+> See `.cursor/rules/beginner-guardrails.mdc` for details.
+
 <!-- Ref: https://stacksfinder.com/guides/how-to-choose-tech-stack-2026 -->
 <!-- Ref: https://techgeeta.com/blog/best-tech-stack-for-mvp-2026 -->
 <!-- Ref: https://techstack.sh/guides/tech-stack-for-startups/ -->
@@ -167,9 +171,18 @@ After answering the questions above:
 
 ## Quick-start stacks (copy-paste starting points)
 
-### The "Safe default" (full-stack web app)
-- **Frontend**: Next.js + TypeScript + Tailwind CSS + shadcn/ui
-- **Backend**: Next.js API routes (or separate NestJS if complex)
+### Workspace preferred default (use when no preference stated)
+- **Frontend**: React + TypeScript + Tailwind CSS + shadcn/ui (Vite or Next.js)
+- **Backend**: Express.js + TypeScript
+- **Database (local/dev)**: SQLite (via better-sqlite3 or Drizzle ORM) — zero-config, instant setup
+- **Database (production)**: Supabase (PostgreSQL) — sync SQLite to Supabase for multi-user / cloud / real-time
+- **Auth**: Supabase Auth
+- **Hosting**: Vercel or Railway (frontend) + Supabase (DB + auth)
+- **Cost**: Free tier to ~$25/mo for MVP
+- **Why this stack**: React has the largest ecosystem and hiring pool. Express is the most understood Node.js backend. SQLite gives instant local development. Supabase gives you PostgreSQL, auth, real-time, and storage in one managed service when you need to go distributed.
+
+### Alternative: "Next.js all-in-one" (full-stack web app)
+- **Frontend + Backend**: Next.js + TypeScript + Tailwind CSS + shadcn/ui (API routes for backend)
 - **Database**: PostgreSQL (via Supabase or Neon)
 - **Auth**: Clerk or Auth.js
 - **Hosting**: Vercel (frontend) + managed DB

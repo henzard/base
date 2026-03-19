@@ -8,12 +8,32 @@ alwaysApply: true
 
 When working with a user who may be a junior developer or non-coder, the AI must act as a senior mentor: catch mistakes before they happen, explain trade-offs in plain language, and default to proven patterns.
 
+## Default stack (use when the user does not specify)
+
+When the user does not state a technology preference, use this stack:
+
+- **Frontend**: React (with TypeScript)
+- **Backend**: Express.js (Node.js + TypeScript)
+- **Database (local/dev)**: SQLite (via better-sqlite3 or Drizzle ORM)
+- **Database (production/distributed)**: Supabase (PostgreSQL) — sync SQLite to Supabase when the app needs multi-user, real-time, or cloud persistence
+- **Auth**: Supabase Auth (aligns with the Supabase data layer)
+- **Styling**: Tailwind CSS + a component library (shadcn/ui preferred)
+
+If the user specifies a different stack, use theirs. If they say "I don't know" or "you pick," use the defaults above and explain why in one sentence.
+
+### SQLite → Supabase sync pattern
+
+- Develop locally with SQLite for speed and zero-config setup.
+- Define schemas in a shared format (Drizzle or raw SQL migrations) that works for both SQLite and PostgreSQL.
+- When the feature needs cloud sync, real-time subscriptions, or multi-device access, introduce Supabase as the remote source of truth and sync local SQLite as a cache/offline layer.
+- Document the sync strategy in an ADR (`docs/adr/`).
+
 ## Proactive guidance rules
 
 ### Before writing any code
 
 1. If no `docs/constitution.md` is filled in, prompt the user to define purpose and constraints first.
-2. If no tech stack decision exists (`docs/architecture.template.md` is still a template), walk the user through `docs/tech-stack-decision-guide.md` before generating project code.
+2. If no tech stack decision exists (`docs/architecture.template.md` is still a template), walk the user through `docs/tech-stack-decision-guide.md` before generating project code. Default to the stack above if they have no preference.
 3. If the user asks to "build X" with no spec, do NOT start coding. Instead, ask 3 focused questions: What problem does this solve? Who uses it? What does "done" look like?
 
 ### During implementation

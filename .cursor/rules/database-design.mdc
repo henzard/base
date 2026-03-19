@@ -1,6 +1,6 @@
 ---
 description: Database design patterns and guardrails — enforced on any schema, migration, or data model work
-globs: "**/*.sql,**/*migration*,**/*schema*,**/*model*,**/*entity*,**/prisma/**,**/drizzle/**,**/knex/**,**/typeorm/**,**/sequelize/**"
+globs: "**/*.sql,**/*migration*,**/*schema*,**/*model*,**/*entity*,**/prisma/**,**/drizzle/**,**/knex/**,**/typeorm/**,**/sequelize/**,**/supabase/**"
 alwaysApply: false
 ---
 
@@ -69,12 +69,37 @@ Every schema change, migration, or data model must follow these rules. The AI mu
 - Many-to-Many: junction/join table with composite PK or surrogate PK + unique constraint on the pair.
 - One-to-One: FK with unique constraint, or merge into one table if both sides always exist.
 
+## SQLite + Supabase (workspace default)
+
+This workspace defaults to SQLite (local) syncing to Supabase (PostgreSQL, production). Follow these rules:
+
+### SQLite (local/dev)
+- Use `better-sqlite3` (synchronous, fast) or Drizzle ORM with SQLite adapter.
+- SQLite has no `BIGSERIAL` — use `INTEGER PRIMARY KEY AUTOINCREMENT` instead.
+- SQLite has no native `TIMESTAMP WITH TIME ZONE` — store ISO 8601 strings (`TEXT`) or Unix epoch (`INTEGER`). Use a consistent convention project-wide.
+- SQLite has no `DECIMAL` type — store money as `INTEGER` in the smallest unit (cents/pence). E.g. $12.50 = `1250`.
+- Enable `PRAGMA journal_mode=WAL;` for concurrent reads.
+- Enable `PRAGMA foreign_keys=ON;` — SQLite does NOT enforce foreign keys by default.
+
+### Supabase (production/distributed)
+- Supabase is PostgreSQL — all standard PostgreSQL rules in this file apply.
+- Use Supabase migrations (`supabase db diff` / `supabase migration new`) or Drizzle push.
+- Use Supabase Row Level Security (RLS) for access control — do not rely on app-level checks alone.
+- Use Supabase realtime subscriptions for live data instead of polling.
+
+### Sync strategy
+- Write migrations in a shared schema definition (Drizzle recommended) that generates both SQLite and PostgreSQL.
+- Local SQLite is the offline/fast cache. Supabase PostgreSQL is the source of truth.
+- When a feature needs cloud sync: push local changes to Supabase, subscribe to remote changes.
+- Document the sync boundary and conflict resolution strategy in an ADR.
+
 ## Migrations
 
 - Every schema change goes through a migration file — never modify the DB by hand.
 - Migrations must be reversible (include `up` and `down`).
 - One logical change per migration (don't mix "add column" with "change index").
 - Name migrations descriptively: `20260213_add_verified_at_to_user.sql`.
+- For SQLite: use Drizzle `migrate()` or a custom runner. For Supabase: use `supabase migration new`.
 
 ## Soft delete
 
